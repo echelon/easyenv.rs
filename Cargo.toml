@@ -1,0 +1,26 @@
+[package]
+name = "easyenv"
+edition = "2018"
+version = "0.0.1"
+authors = [
+  "Brandon Thomas <bt@brand.io>",
+  "Brandon Thomas <echelon@gmail.com>",
+]
+description = "Easy ENV variable handling; also sets up Rust's env_logger."
+keywords = ["ENV", "environment", "helper"]
+license = "BSD-4-Clause"
+readme = "README.md"
+repository = "https://github.com/echelon/easyenv.rs"
+documentation = "https://docs.rs/easyenv"
+
+[badges]
+travis-ci = { repository = "echelon/arpabet.rs" }
+
+[lib]
+name = "easyenv"
+path = "src/lib.rs"
+
+[dependencies]
+env_logger = "0.7"
+log = "0.4"
+
