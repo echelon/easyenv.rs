@@ -11,11 +11,12 @@
 #![deny(unused_qualifications)]
 #![deny(unused_qualifications)]
 
-use log::{warn, error};
 use env_logger;
-use std::env;
-use std::fmt::{Display, Debug};
+use log::{warn, error};
+use std::error::Error;
+use std::fmt::{Display, Debug, Formatter};
 use std::str::FromStr;
+use std::{env, fmt};
 
 /// Name of the environment variable Rust's env logger uses
 pub const ENV_RUST_LOG : &'static str = "RUST_LOG";
@@ -23,9 +24,22 @@ pub const ENV_RUST_LOG : &'static str = "RUST_LOG";
 const DEFAULT_LOG_LEVEL: &'static str = "info";
 
 /// Errors with env variables.
+#[derive(Debug)]
 pub enum EnvError {
   /// Problem parsing the env variable as the desired type.
   ParseError
+}
+
+impl Display for EnvError {
+  fn fmt(&self, f: &mut Formatter<'_>) -> fmt::Result {
+    write!(f, "EnvError::ParseError")
+  }
+}
+
+impl Error for EnvError {
+  fn source(&self) -> Option<&(dyn Error + 'static)> {
+    None
+  }
 }
 
 /// Get an environment variable as a `String`, or fall back to the provided default.
