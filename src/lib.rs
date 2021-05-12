@@ -180,3 +180,18 @@ pub fn init_env_logger(default_if_absent: Option<&str>) {
 
   env_logger::init();
 }
+
+/// Initialize dotenv with the default `.env` config file.
+pub fn init_dotenv() {
+  match dotenv::dotenv() {
+    Ok(_) => println!("dotenv configs initialized"),
+    Err(e) => println!("Could not initialize dotenv: {:?}", e),
+  }
+}
+
+/// Initialize dotenv and env logger.
+/// See `init_dotenv()` and `init_env_logger(Option<&str>)` for further details.
+pub fn init_all_with_default_logging(default_if_absent: Option<&str>) {
+  init_dotenv();
+  init_env_logger(default_if_absent)
+}

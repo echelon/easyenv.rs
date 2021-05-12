@@ -21,6 +21,6 @@ name = "easyenv"
 path = "src/lib.rs"
 
 [dependencies]
+dotenv = "0.15.0"
 env_logger = "0.7"
 log = "0.4"
-
