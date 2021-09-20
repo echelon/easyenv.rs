@@ -18,6 +18,7 @@ use std::fmt::{Display, Debug, Formatter};
 use std::str::FromStr;
 use std::{env, fmt};
 
+mod duration;
 mod internal;
 
 use internal::get_env_bool_internal;
@@ -156,6 +157,10 @@ pub fn get_env_num<T>(env_name: &str, default: T) -> Result<T, EnvError>
     },
   }
 }
+
+pub use duration::get_env_duration_seconds_optional;
+pub use duration::get_env_duration_seconds_or_default;
+pub use duration::get_env_duration_seconds_required;
 
 /// Initialize Rust's env logger.
 ///
