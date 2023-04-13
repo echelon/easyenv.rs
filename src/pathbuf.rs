@@ -2,7 +2,7 @@ use crate::EnvError;
 use log::warn;
 use std::env::VarError;
 use std::env;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::str::FromStr;
 
 /// Get an environment variable as a `PathBuf`.
@@ -36,19 +36,21 @@ pub fn get_env_pathbuf_optional(env_name: &str) -> Option<PathBuf> {
 
 /// Get an environment variable as a `PathBuf`, or fall back to the provided default.
 /// Returns the default in the event of a parse error.
-pub fn get_env_pathbuf_or_default(env_name: &str, default_value: PathBuf) -> PathBuf {
+pub fn get_env_pathbuf_or_default<P: AsRef<Path>>(env_name: &str, default_value: P) -> PathBuf {
   get_env_pathbuf_internal(env_name)
     .map(|maybe| match maybe {
       None => {
-        warn!("Env var '{}' not supplied. Using default '{:?}'.", env_name, &default_value);
-        default_value.clone() // FIXME: Remove this extra clone
+        let default_path = default_value.as_ref().to_path_buf();
+        warn!("Env var '{}' not supplied. Using default '{:?}'.", env_name, &default_path);
+        default_path
       },
       Some(val) => val,
     })
     .unwrap_or_else(|e| {
+      let default_path = default_value.as_ref().to_path_buf();
       warn!("Env var '{}': error: {:?}. Using default '{:?}'.",
-            env_name, e, &default_value);
-      default_value
+            env_name, e, &default_path);
+      default_path
     })
 }
 
