@@ -55,12 +55,9 @@ pub fn get_env_pathbuf_or_default(env_name: &str, default_value: PathBuf) -> Pat
 fn get_env_pathbuf_internal(env_name: &str) -> Result<Option<PathBuf>, EnvError> {
   match env::var(env_name).as_ref() {
     Err(err) => match err {
-      // TODO: EnvError enum variant for invalid unicode
       // TODO: EnvError enum variant for equals sign in env var name
       VarError::NotPresent => Ok(None),
-      VarError::NotUnicode(_) => Err(EnvError::ParseError {
-        reason: "env var value not valid unicode".to_string()
-      }),
+      VarError::NotUnicode(_) => Err(EnvError::NotUnicode),
     }
     Ok(val) => {
       match PathBuf::from_str(val) {

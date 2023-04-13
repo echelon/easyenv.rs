@@ -12,18 +12,15 @@
 #![deny(unused_qualifications)]
 
 use env_logger;
-use log::{warn, error};
 use std::error::Error;
 use std::fmt::{Display, Debug, Formatter};
-use std::str::FromStr;
 use std::{env, fmt};
 
+mod boolean;
 mod duration;
-mod internal;
 mod pathbuf;
 mod string;
-
-use internal::get_env_bool_internal;
+mod num;
 
 /// Name of the environment variable Rust's env logger uses
 pub const ENV_RUST_LOG : &'static str = "RUST_LOG";
@@ -33,6 +30,8 @@ const DEFAULT_LOG_LEVEL: &'static str = "info";
 /// Errors with env variables.
 #[derive(Debug)]
 pub enum EnvError {
+  /// The environment variable value is not unicode.
+  NotUnicode,
   /// Problem parsing the env variable as the desired type.
   ParseError {
     /// Explanation of the parsing failure.
@@ -54,90 +53,23 @@ impl Error for EnvError {
   }
 }
 
-/// Get an environment variable as a bool.
-/// If not present or there is an error in parsing, return `None`.
-pub fn get_env_bool_optional(env_name: &str) -> Option<bool> {
-  match env::var(env_name).as_ref().ok() {
-    None => {
-      warn!("Env var '{}' not supplied.", env_name);
-      None
-    },
-    Some(val) => match val.as_ref() {
-      "TRUE" => Some(true),
-      "true" => Some(true),
-      "FALSE" => Some(false),
-      "false" => Some(false),
-      _ => {
-        warn!("Env var '{}': error parsing boolean value: {:?}", env_name, val);
-        None
-      },
-    }
-  }
-}
-
-/// Get an environment variable as a bool, or fall back to the provided default.
-/// Returns the default in the event of a parse error.
-pub fn get_env_bool_or_default(env_name: &str, default: bool) -> bool {
-  get_env_bool_internal(env_name)
-    .map(|maybe| match maybe {
-      None => {
-        warn!("Env var '{}' not supplied. Using default '{}'.", env_name, default);
-        default
-      },
-      Some(val) => val,
-    })
-    .unwrap_or_else(|e| {
-      warn!("Env var '{}': error parsing boolean value: {:?}. Using default '{}'.",
-            env_name, e, default);
-      default
-    })
-}
-
-/// Get an environment variable as a bool.
-/// If not provided or cannot parse, return an error.
-pub fn get_env_bool_required(env_name: &str) -> Result<bool, EnvError> {
-  get_env_bool_internal(env_name)
-    .and_then(|maybe| match maybe {
-      None => {
-        warn!("Env var '{}' not supplied.", env_name);
-        Err(EnvError::RequiredNotPresent)
-      },
-      Some(val) => Ok(val),
-    })
-}
-
-/// Get an environment variable as a number, or fall back to the provided default if not set.
-/// If the env var is present but can't be parsed, an error is returned instead.
-pub fn get_env_num<T>(env_name: &str, default: T) -> Result<T, EnvError>
-  where T: FromStr + Display,
-        T::Err: Debug
-{
-  match env::var(env_name).as_ref().ok() {
-    None => {
-      warn!("Env var '{}' not supplied. Using default '{}'.", env_name, default);
-      Ok(default)
-    },
-    Some(val) => {
-      val.parse::<T>()
-        .map_err(|e| {
-          error!("Can't parse value '{:?}'. Error: {:?}", val, e);
-          EnvError::ParseError { reason: format!("Can't parse value: {:?}", e) }
-        })
-    },
-  }
-}
-
-pub use string::get_env_string_optional;
-pub use string::get_env_string_or_default;
-pub use string::get_env_string_required;
+pub use boolean::get_env_bool_optional;
+pub use boolean::get_env_bool_or_default;
+pub use boolean::get_env_bool_required;
 
 pub use duration::get_env_duration_seconds_optional;
 pub use duration::get_env_duration_seconds_or_default;
 pub use duration::get_env_duration_seconds_required;
 
+pub use num::get_env_num;
+
 pub use pathbuf::get_env_pathbuf_optional;
 pub use pathbuf::get_env_pathbuf_or_default;
 pub use pathbuf::get_env_pathbuf_required;
+
+pub use string::get_env_string_optional;
+pub use string::get_env_string_or_default;
+pub use string::get_env_string_required;
 
 /// Initialize Rust's env logger.
 ///
