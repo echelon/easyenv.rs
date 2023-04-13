@@ -1,7 +1,7 @@
 [package]
 name = "easyenv"
 edition = "2018"
-version = "0.0.6"
+version = "0.0.7"
 authors = [
   "Brandon Thomas <bt@brand.io>",
   "Brandon Thomas <echelon@gmail.com>",
@@ -14,7 +14,7 @@ repository = "https://github.com/echelon/easyenv.rs"
 documentation = "https://docs.rs/easyenv"
 
 [badges]
-travis-ci = { repository = "echelon/arpabet.rs" }
+travis-ci = { repository = "echelon/easyenv.rs" }
 
 [lib]
 name = "easyenv"
@@ -22,5 +22,5 @@ path = "src/lib.rs"
 
 [dependencies]
 dotenv = "0.15.0"
-env_logger = "0.7"
+env_logger = "0.10.0"
 log = "0.4"
