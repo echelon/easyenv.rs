@@ -20,6 +20,8 @@ use std::{env, fmt};
 
 mod duration;
 mod internal;
+mod pathbuf;
+mod string;
 
 use internal::get_env_bool_internal;
 
@@ -104,39 +106,6 @@ pub fn get_env_bool_required(env_name: &str) -> Result<bool, EnvError> {
     })
 }
 
-/// Get an environment variable as an optional `String`.
-pub fn get_env_string_optional(env_name: &str) -> Option<String> {
-  match env::var(env_name).as_ref().ok() {
-    Some(s) => Some(s.to_string()),
-    None => {
-      warn!("Env var '{}' not supplied.", env_name);
-      None
-    },
-  }
-}
-
-/// Get an environment variable as a `String`, or fall back to the provided default.
-pub fn get_env_string_or_default(env_name: &str, default: &str) -> String {
-  match env::var(env_name).as_ref().ok() {
-    Some(s) => s.to_string(),
-    None => {
-      warn!("Env var '{}' not supplied. Using default '{}'.", env_name, default);
-      default.to_string()
-    },
-  }
-}
-
-/// Get an environment variable as a `String`, or return an error.
-pub fn get_env_string_required(env_name: &str) -> Result<String, EnvError> {
-  match env::var(env_name).as_ref().ok() {
-    Some(s) => Ok(s.to_string()),
-    None => {
-      warn!("Required env var '{}' not supplied.", env_name);
-      Err(EnvError::RequiredNotPresent)
-    },
-  }
-}
-
 /// Get an environment variable as a number, or fall back to the provided default if not set.
 /// If the env var is present but can't be parsed, an error is returned instead.
 pub fn get_env_num<T>(env_name: &str, default: T) -> Result<T, EnvError>
@@ -158,9 +127,17 @@ pub fn get_env_num<T>(env_name: &str, default: T) -> Result<T, EnvError>
   }
 }
 
+pub use string::get_env_string_optional;
+pub use string::get_env_string_or_default;
+pub use string::get_env_string_required;
+
 pub use duration::get_env_duration_seconds_optional;
 pub use duration::get_env_duration_seconds_or_default;
 pub use duration::get_env_duration_seconds_required;
+
+pub use pathbuf::get_env_pathbuf_optional;
+pub use pathbuf::get_env_pathbuf_or_default;
+pub use pathbuf::get_env_pathbuf_required;
 
 /// Initialize Rust's env logger.
 ///
@@ -180,7 +157,7 @@ pub fn init_env_logger(default_if_absent: Option<&str>) {
     let default_log_level = default_if_absent.unwrap_or(DEFAULT_LOG_LEVEL);
     println!("Setting default logging level to \"{}\", override with env var {}.",
              default_log_level, ENV_RUST_LOG);
-    std::env::set_var(ENV_RUST_LOG, default_log_level);
+    env::set_var(ENV_RUST_LOG, default_log_level);
   }
 
   env_logger::init();
